@@ -1,2 +1,4 @@
 <Solution>
+  <Project Path="../../../../../../source/repos/RulesResolver/RulesResolver.Core/RulesResolver.Core.csproj" Id="09697d64-d3bf-45b7-a525-d79c7f0b6f42" />
+  <Project Path="../../../../../../source/repos/RulesResolver/RulesResolver.Metadata/RulesResolver.Metadata.csproj" Id="0b66c6c5-6cb8-4dbf-8653-e16b559db942" />
 </Solution>
