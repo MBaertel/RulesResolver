@@ -8,7 +8,6 @@ namespace RulesResolver.Core.Flows
     public class FlowStepNode
     {
         public StepId Step { get; }
-
         public IReadOnlyList<FlowTransition> Transitions { get; }
 
         public FlowStepNode(

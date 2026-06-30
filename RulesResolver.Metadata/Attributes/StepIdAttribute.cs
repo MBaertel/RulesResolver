@@ -3,14 +3,14 @@
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false,Inherited = false)]
     public sealed class StepIdAttribute : Attribute
     {
-        public string IdString { get; }
+        public string LocalIdString { get; }
 
-        public StepIdAttribute(string idString)
+        public StepIdAttribute(string localIdString)
         {
-            if (string.IsNullOrWhiteSpace(idString))
-                throw new ArgumentException("idString cannot be null or empty.", nameof(idString));
+            if (string.IsNullOrWhiteSpace(localIdString))
+                throw new ArgumentException("idString cannot be null or empty.", nameof(localIdString));
 
-            IdString = idString;
+            LocalIdString = localIdString;
         }
     }
 }

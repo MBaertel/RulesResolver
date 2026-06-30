@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Registry\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\RulesResolver.Metadata\RulesResolver.Metadata.csproj" />
   </ItemGroup>
 

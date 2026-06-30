@@ -7,10 +7,10 @@ namespace RulesResolver.Core.Flows
 {
     public readonly struct FlowContinuation
     {
-        public StepId? NextStep { get; }
+        public StepNodeId? NextStep { get; }
         public object? Input { get; }
 
-        public FlowContinuation(StepId? nextStep, object? input)
+        public FlowContinuation(StepNodeId? nextStep, object? input)
         {
             NextStep = nextStep;
             Input = input;

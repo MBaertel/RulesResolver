@@ -8,14 +8,14 @@ namespace RulesResolver.Core.Flows
 {
     public class FlowTransition
     {
-        public StepId Target { get; }
-        public Func<FlowContext,object,object> Transform { get; }
-        public Func<FlowContext,object , bool> Condition { get; }
+        public StepNodeId Target { get; }
+        public Func<FlowContext,object> Transform { get; }
+        public Func<FlowContext, bool>? Condition { get; }
 
         public FlowTransition(
-            StepId target,
-            Func<FlowContext, object, object> transform,
-            Func<FlowContext, object, bool> condition)
+            StepNodeId target,
+            Func<FlowContext, object> transform,
+            Func<FlowContext, bool> condition)
         {
             Target = target;
             Transform = transform;
