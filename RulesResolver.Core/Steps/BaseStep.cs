@@ -6,16 +6,19 @@ namespace RulesResolver.Core.Steps
 {
     public abstract class BaseStep<TIn,TOut> : IStep<TIn,TOut>
     {
-        StepResult IStep.Execute(object input, out object output)
+        StepOutcome IStep.Execute(object? input)
         {
-            var result = ExecuteTyped((TIn)input, out var typedOutput);
-            output = typedOutput!;
-            return result;
+            if(input is TIn typedInput)
+            {
+                var result = ExecuteTyped((TIn?)input);
+                return result;
+            }
+            throw new InvalidCastException($"input was of type {input?.GetType()}, expected {typeof(TIn)}");
         }
 
-        StepResult IStep<TIn, TOut>.Execute(TIn input, out TOut output) =>
-            ExecuteTyped((TIn)input, out output);
+        StepOutcome<TOut> IStep<TIn, TOut>.Execute(TIn? input) =>
+            ExecuteTyped(input);
 
-        protected abstract StepResult ExecuteTyped(TIn input, out TOut output);
+        protected abstract StepOutcome<TOut> ExecuteTyped(TIn? input);
     }
 }
