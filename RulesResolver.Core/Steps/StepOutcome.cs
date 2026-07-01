@@ -1,29 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.NetworkInformation;
 using System.Text;
 
 namespace RulesResolver.Core.Steps
 {
-    public abstract record StepOutcome
+    public class StepOutcome
     {
-        public abstract StepResult Result { get; }
+        public StepResult Result { get; }
+        public object? Output { get; }
+        public Await? Await { get; }
+
+        protected StepOutcome(StepResult state, object? output = null, Await? awaitable = null)
+        {
+            Result = state;
+            Output = output;
+            Await = awaitable;
+        }
+
+        public static StepOutcome Continue(object? output) =>
+            new(StepResult.Continue, output);
+
+        public static StepOutcome Suspend(Await awaitable) =>
+            new(StepResult.Suspend, null, awaitable);
     }
 
-    public sealed record StepOutcome<T>(T Output) : StepOutcome
+    public sealed class StepOutcome<T> : StepOutcome
     {
-        public override StepResult Result => StepResult.Continue;
-    }
+        public new T? Output => (T?)base.Output;
 
-    public sealed record Continue(object? Output) : StepOutcome
-    {
-        public override StepResult Result => StepResult.Continue;
-    }
-    public sealed record Suspend(Await Await) : StepOutcome
-    {
-        public override StepResult Result => StepResult.Suspend;
-    }
-    public sealed record Cancel : StepOutcome
-    {
-        public override StepResult Result => StepResult.Cancel;
+        private StepOutcome(StepResult state, T? output = default, Await? awaitable = null)
+            : base(state, output, awaitable)
+        {
+        }
+
+        public static StepOutcome<T> Continue(T output) =>
+            new(StepResult.Continue, output);
+
+        public static StepOutcome<T> Suspend(Await awaitable) =>
+            new(StepResult.Suspend, default, awaitable);
     }
 }

@@ -13,6 +13,7 @@ namespace RulesResolver.Core.Flows.Instances
     public class FlowInstance
     {
         public object? Payload { get; set; }
+        public Await? Await { get; set; }
 
         private Dictionary<string, object?> _variables = new();
         public IReadOnlyDictionary<string, object?> Variables => _variables.AsReadOnly();
@@ -48,31 +49,46 @@ namespace RulesResolver.Core.Flows.Instances
 
         public FlowResult Step()
         {
+            if (Await != null)
+            {
+                if (!Await.Completed)
+                    return FlowResult.Suspended;
+                else
+                {
+                    Payload = Await.Result;
+                    Await = null;
+                    var next = GetNextStep();
+                    if (next.HasValue) return FlowResult.Completed;
+                    Payload = next.Value.payload;
+                    currentStep = next.Value.step;
+                }
+            }
+
             var step = steps[currentStep];
-            var result = step.Execute(Payload, out var resultObject);
+            var outcome = step.Execute(Payload);
 
-            if(result == StepResult.Continue)
+            switch (outcome.Result)
             {
-                Payload = resultObject;
-                var stepNext = GetNextStep(currentStep);
-                if (stepNext == null) return FlowResult.Completed;
+                case StepResult.Suspend:
+                    Await = outcome.Await!;
+                    return FlowResult.Suspended;
+                case StepResult.Continue:
+                    Payload = outcome.Output;
+                    var next = GetNextStep();
+                    if (next.HasValue) return FlowResult.Completed;
+                    Payload = next.Value.payload;
+                    currentStep = next.Value.step;
+                    return FlowResult.Advanced;
 
-                currentStep = stepNext!.Value.id;
-                Payload = stepNext.Value.payload;
+                case StepResult.Cancel:
+                    return FlowResult.Cancelled;
 
-                return FlowResult.Advanced;
-            }
-            else if(result == StepResult.Suspend)
-            {
-                return FlowResult.Suspended;
-            }
-            else
-            {
-                return FlowResult.Cancelled;
+                default:
+                    throw new InvalidOperationException();
             }
         }
 
-        private (StepNodeId id,object? payload)? GetNextStep(StepNodeId currentStep)
+        private (StepNodeId step,object? payload)? GetNextStep()
         {
             var relevantTransitions = transitions[currentStep];
             foreach (var transition in relevantTransitions)

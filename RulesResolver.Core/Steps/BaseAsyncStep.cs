@@ -18,15 +18,15 @@ namespace RulesResolver.Core.Steps
 
         private StepOutcome<TOut> ExecuteTyped(TIn? input)
         {
-            var await = new StepAwait(StepId, input);
+            var awaitable = new StepAwait(StepId, input);
 
-            await.AttachTask(async () =>
+            awaitable.AttachTask(async () =>
             {
-                var result = await ExecuteAsync((TIn?)await.Input);
+                var result = await ExecuteAsync((TIn?) );
                 return (object?)result;
             });
 
-            return StepOutcome(await);
+            return StepOutcome<TOut>.Suspend(awaitable);
         }
     }
 }

@@ -18,13 +18,13 @@ namespace RulesResolver.Core.Steps
             this.Id = id ?? Guid.NewGuid();
         }
 
-        internal void AttachTask(Task<object?> task)
+        internal void AttachTask(Func<Task<object?>> task)
         {
             if (Completed || Task != null)
                 return;
 
-            Task = task;
-            task.ContinueWith(t =>
+            Task = task();
+            Task.ContinueWith(t =>
             {
                 if (t.Status == TaskStatus.RanToCompletion)
                     Complete(t.Result);
