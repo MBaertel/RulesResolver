@@ -10,4 +10,8 @@
     <ProjectReference Include="..\RulesResolver.Metadata\RulesResolver.Metadata.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Flows\Nodes\" />
+  </ItemGroup>
+
 </Project>

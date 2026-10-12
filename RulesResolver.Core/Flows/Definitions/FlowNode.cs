@@ -3,14 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace RulesResolver.Core.Flows
+namespace RulesResolver.Core.Flows.Nodes
 {
-    public class FlowStepNode
+    public class FlowNode
     {
         public StepId Step { get; }
-        public IReadOnlyList<FlowTransition> Transitions { get; }
+        public IReadOnlyList<FlowTransition> Transitions { get; } 
 
-        public FlowStepNode(
+        public FlowNode(
             StepId step,
             IReadOnlyList<FlowTransition> transitions)
         {

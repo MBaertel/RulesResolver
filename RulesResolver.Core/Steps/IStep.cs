@@ -6,11 +6,11 @@ namespace RulesResolver.Core.Steps
 {
     public interface IStep
     {
-        StepOutcome Execute(object? input);
+        StepResult<object> Execute(object? input);
     }
 
     public interface IStep<TIn,TOut> : IStep
     {
-        StepOutcome<TOut> Execute(TIn input);
+        StepResult<TOut> Execute(TIn input);
     }
 }

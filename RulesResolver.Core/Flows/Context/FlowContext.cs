@@ -6,21 +6,31 @@ using System.Text;
 
 namespace RulesResolver.Core.Context
 {
+    /// <summary>
+    /// The Flow Context holds all runtime Data of the flow.
+    /// </summary>
     public sealed class FlowContext
     {
-        private readonly FlowInstance _instance;
+        private object? _payload = null;
 
-        public object? Payload => _instance.Payload;
-        
-        public void SetVariable(string key,object? value) =>
-            _instance.SetVariable(key,value);
+        private Dictionary<string, object?> _variables = 
+            new Dictionary<string, object?>();
+
+		public object? Payload
+        {
+            get => _payload;
+            set => _payload = value;
+        }
+
+		public void SetVariable(string key, object? value) =>
+            _variables[key] = value;
         
         public bool TryGetVariable(string key, out object? value) =>
-            _instance.TryGetVariable(key, out value);
+            _variables.TryGetValue(key, out value);
 
-        public FlowContext(FlowInstance instance)
+        public FlowContext(object payload)
         {
-            _instance = instance;
+            _payload = payload;
         }
     }
 }

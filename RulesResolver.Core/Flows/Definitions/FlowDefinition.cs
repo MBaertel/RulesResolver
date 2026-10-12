@@ -1,4 +1,5 @@
 ﻿using RulesResolver.Core.Context;
+using RulesResolver.Core.Flows.Nodes;
 using RulesResolver.Metadata.Ids;
 using System;
 using System.Collections.Generic;
@@ -6,26 +7,23 @@ using System.Text;
 
 namespace RulesResolver.Core.Flows.Definitions
 {
+    /// <summary>
+    /// The Flow Definition contains a blueprint for a flow
+    /// </summary>
     public class FlowDefinition
     {
         public FlowId Id { get; }
-        public StepNodeId EntryStep { get; }
-        public IReadOnlyDictionary<StepNodeId,FlowStepNode> Steps { get; }
+        public Guid EntryStepId { get; }
+        public IReadOnlyDictionary<Guid,FlowNode> Steps { get; }
 
         public FlowDefinition(
             FlowId id,
-            StepNodeId entry,
-            IReadOnlyDictionary<StepNodeId, FlowStepNode> steps)
+			Guid entryStepId,
+            IReadOnlyDictionary<Guid, FlowNode> steps)
         {
             Id = id;
-            EntryStep = entry;
+            EntryStepId = entryStepId;
             Steps = steps;
-        }
-
-        public bool Validate(out string? error)
-        {
-            error = null;
-            return true;
         }
     }
 }

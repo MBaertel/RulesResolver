@@ -6,7 +6,7 @@ namespace RulesResolver.Core.Steps
 {
     public abstract class BaseStep<TIn,TOut> : IStep<TIn,TOut>
     {
-        StepOutcome IStep.Execute(object? input)
+        StepResult<object> IStep.Execute(object? input)
         {
             if(input is TIn typedInput)
             {
@@ -16,9 +16,9 @@ namespace RulesResolver.Core.Steps
             throw new InvalidCastException($"input was of type {input?.GetType()}, expected {typeof(TIn)}");
         }
 
-        StepOutcome<TOut> IStep<TIn, TOut>.Execute(TIn? input) =>
+        StepResult<TOut> IStep<TIn, TOut>.Execute(TIn? input) =>
             ExecuteTyped(input);
 
-        protected abstract StepOutcome<TOut> ExecuteTyped(TIn? input);
+        protected abstract StepResult<TOut> ExecuteTyped(TIn? input);
     }
 }

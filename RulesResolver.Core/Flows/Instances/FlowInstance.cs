@@ -10,93 +10,28 @@ using System.Text;
 
 namespace RulesResolver.Core.Flows.Instances
 {
+    /// <summary>
+    /// The Flow Instance holds all runtime entities required by the flow, and knows how to advance the flow. Essentially a Hydrated FlowDefinition.
+    /// </summary>
     public class FlowInstance
     {
-        public object? Payload { get; set; }
-        public Await? Await { get; set; }
+        public required IReadOnlyDictionary<Guid,IStep> Steps { get; init; }
+        public required IReadOnlyDictionary<Guid,IEnumerable<FlowTransition>> Transitions { get; init; }
 
-        private Dictionary<string, object?> _variables = new();
-        public IReadOnlyDictionary<string, object?> Variables => _variables.AsReadOnly();
-
-        public void SetVariable(string key, object? value) =>
-            _variables[key] = value;
-
-        public bool TryGetVariable(string key, out object? value) =>
-            _variables.TryGetValue(key, out value);
-
-
-        private Dictionary<StepNodeId, IStep> steps = new();
-        private Dictionary<StepNodeId, List<FlowTransition>> transitions = new();
-
-        private StepNodeId currentStep;
-
-        private FlowContext context;
-
-
-        public FlowInstance(IStepRegistry stepRegistry,FlowDefinition definition)
+        /// <summary>
+        /// Resolve the next Node and Transition.
+        /// </summary>
+        /// <param name="currentNodeId">Id of the last node.</param>
+        /// <param name="ctx">flow context.</param>
+        /// <returns>Id of the next node, as well as the necessary transition, in a tuple.</returns>
+        public (Guid nextNodeId,FlowTransition transition)? GetNextStep(Guid currentNodeId,FlowContext ctx)
         {
-            context = new FlowContext(this);
-            currentStep = definition.EntryStep;
-            foreach (var step in definition.Steps)
-            {
-                var resolved = stepRegistry.TryGetStep(step.Value.Step, out var resolvedStep);
-                if (!resolved) throw new InvalidOperationException("StepId not found");
-                steps.Add(step.Key, resolvedStep!);
-
-                transitions[step.Key] = step.Value.Transitions.ToList();
-            }
-        }
-
-        public FlowResult Step()
-        {
-            if (Await != null)
-            {
-                if (!Await.Completed)
-                    return FlowResult.Suspended;
-                else
-                {
-                    Payload = Await.Result;
-                    Await = null;
-                    var next = GetNextStep();
-                    if (next.HasValue) return FlowResult.Completed;
-                    Payload = next.Value.payload;
-                    currentStep = next.Value.step;
-                }
-            }
-
-            var step = steps[currentStep];
-            var outcome = step.Execute(Payload);
-
-            switch (outcome.Result)
-            {
-                case StepResult.Suspend:
-                    Await = outcome.Await!;
-                    return FlowResult.Suspended;
-                case StepResult.Continue:
-                    Payload = outcome.Output;
-                    var next = GetNextStep();
-                    if (next.HasValue) return FlowResult.Completed;
-                    Payload = next.Value.payload;
-                    currentStep = next.Value.step;
-                    return FlowResult.Advanced;
-
-                case StepResult.Cancel:
-                    return FlowResult.Cancelled;
-
-                default:
-                    throw new InvalidOperationException();
-            }
-        }
-
-        private (StepNodeId step,object? payload)? GetNextStep()
-        {
-            var relevantTransitions = transitions[currentStep];
+            var relevantTransitions = Transitions[currentNodeId];
             foreach (var transition in relevantTransitions)
             {
-                if (transition.Condition == null || transition.Condition(context))
+                if (transition.Condition == null || transition.Condition(ctx))
                 {
-                    var newPayload = transition.Transform(context);
-                    return (transition.Target, newPayload);
+                    return (transition.Target, transition);
                 }
             }
             return null;

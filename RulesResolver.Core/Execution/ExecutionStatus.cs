@@ -4,11 +4,13 @@ using System.Text;
 
 namespace RulesResolver.Core.Execution
 {
-    public enum FlowResult
+    public enum ExecutionStatus
     {
-        Advanced,
+        Pending,
+        Running,
         Suspended,
-        Completed,
+        Waiting,
+        Faulted,
         Cancelled
     }
 }
